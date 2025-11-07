@@ -59,3 +59,46 @@ teste/
 
 # Arquivos temporários do Office
 ~$*
+
+# Outros projetos na pasta pai (não fazem parte do projeto Aprovações Unificadas)
+Aditivo de Contratos/
+Alteração de Pedidos de Compras Hospitalar/
+Alçada de Aprovação Unificada 2025-PRD/
+Cadastro de Medicamentos*/
+Cadastro de Médicos/
+Cadastro de Produtos*/
+Campo Identificador/
+Cancelamento de Notas Tasy-Protheus/
+Compras*/
+Contrato de Serviço Médico/
+De para Medicamentos/
+Desativar Usuarios/
+DocSign/
+Duvidas Suprimentos*/
+Elaboração de Contratos e Cadastros Médicos/
+Extração de Dados/
+FLUIG x RPA/
+Fichario*/
+Finalização WFs/
+GCRN*/
+Gestão de Documentos de Entrada/
+Integração Tasy x Protheus/
+Lançamentos Contábeis/
+Medição de Contratos/
+NF Sem Producao/
+Notas Fiscais*/
+Novo Fluxo Cargo-copia1/
+Não Conformidade e Queixa Tecnica/
+PRD - GMUD/
+Padrão Oncoclinicas/
+Pagamento*/
+Procedimentos Padrões/
+Queixas Tecnicas/
+Raterio*/
+Remessa Compras Oncoprod/
+Repasse Medico/
+Solicitação*/
+Sugestão de Compras/
+Tabelas de Preços/
+auditoria-aprovadores/
+com.totvs.tds.ecm.dataservers
