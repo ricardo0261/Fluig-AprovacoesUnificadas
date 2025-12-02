@@ -1431,7 +1431,7 @@ function movimentar181(qITEM) {
     if(dsAPV.values != undefined && dsAPV.values.length > 0)
         statusIndice = dsAPV.values[0].apvSequencia;
    
-   // PASSO 1 - LER DADOS DO FORMULARIO DE APROVACAO
+    // PASSO 1 - LER DADOS DO FORMULARIO DE APROVACAO
     var cardDataRequestXML = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ws="http://ws.workflow.ecm.technology.totvs.com/"> '+
                    '<soapenv:Header/> '+
                    '<soapenv:Body> '+

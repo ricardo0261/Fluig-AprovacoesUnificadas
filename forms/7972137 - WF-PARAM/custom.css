@@ -1,0 +1,104 @@
+/* 
+ 
+  SM2CE LTDA
+  ANALISTA RICARDO ANDRADE
+             ATENCAO
+  *** NAO IDENTAR ESTE CODIGO ***
+      VERSAO 1.0.0
+      r20191226
+  
+*/
+#meuTitulo::placeholder  { 
+  color: white !important;
+  opacity: 1; 
+}
+td {
+	padding: 5px !important;
+	border: none !important;
+}
+.thp {
+	margin: 0 !important;
+	font-size: smaller !important;
+}
+.wcm-menu-background {
+	display: none !important;	
+}
+.thinput {
+  	display: block !important;
+    width: 100%;
+    line-height: 1.42857 !important;
+    color: rgb(85, 85, 85) !important;
+    background-color: rgb(255, 255, 255) !important;
+    background-image: none !important;
+    box-shadow: rgba(255, 255, 255, 255) 0px 1px 1px inset !important;
+    padding: 6px 12px !important;
+    border-width: 1px !important;
+    border-style: none !important;
+    border-radius: 4px !important;
+	border-top: none !important;
+	border-right: none !important;
+	border-left: none !important;
+	border-bottom: 1px solid green !important;
+    transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s !important;
+}
+.thselected {
+	background-color: cadetblue !important;
+	width:100% !important;
+}
+.thzoom {
+	border: 1px solid green !important;
+	background-color: white !important;
+	display: inline-table !important;
+	width:100% !important;
+}
+.thtable {
+	border: none !important;
+	font-size: small !important;
+	text-align: center !important;
+	background-color: white !important;
+    opacity: 1 !important;
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+    margin-left: 0px !important;
+    margin-rigth: 0px !important;
+	font-size: smaller !important;
+}
+.cl* {
+    padding-left: 1px !important;
+    padding-right: 1px !important;
+}
+.thselect {
+	border: 1px solid green !important;
+	box-shadow: green !important;
+	width:100% !important;
+}
+.linhaDETALHES {
+	border: none !important;
+}
+.pointer {
+   cursor: pointer !important; 
+}
+.thlabel {
+	font-size: small !important;
+	text-align: center !important;
+}
+p {
+	font-size: small !important;
+	text-align: center !important;
+}
+.select2-container--default .select2-selection--multiple {
+	border:none !important;
+    border-style: none !important;
+    border-radius: 4px !important;
+	border-top: none !important;
+	border-right: none !important;
+	border-left: none !important;
+	border-bottom: 1px solid green !important;
+    transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s !important;
+    width:100% !important;
+}
+.select2-fluigicon-zoom {
+	border: none !important;
+	background: none !important;
+    width:100% !important;
+}

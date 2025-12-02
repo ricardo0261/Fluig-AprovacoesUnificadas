@@ -1,0 +1,154 @@
+<!-- 
+     ANALISTA RICARDO ANDRADE
+     *** NAO IDENTAR ESTE CODIGO ***
+         VERSAO 1.0.0
+  -->   
+<html>
+	<head>
+		<!-- IDENTITY -->
+		<meta name="description" content="Formulário Parâmetros Aprovações">
+		<meta name="company"     content="Ricardo Andrade">
+		<meta name="dataset"     content="ds_Parametros_Aprovacoes">
+	
+		<!-- FLUIG STYLE GUIDE -->
+		<link type="text/css" rel="stylesheet" href="/style-guide/css/fluig-style-guide.min.css" />
+		<script type="text/javascript" src="/portal/resources/js/jquery/jquery.js"></script>
+		<script type="text/javascript" src="/portal/resources/js/jquery/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="/portal/resources/js/mustache/mustache-min.js"></script>
+		<script type="text/javascript" src="/style-guide/js/fluig-style-guide.min.js" charset="utf-8"></script>
+	
+		<!-- STYLE CUSTOM -->
+		<script type="text/javascript" src="/webdesk/vcXMLRPC.js" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="css/style.css?SM2CE_2408a">
+		<script type="text/javascript" src="custom/custom.js?SM2CE_2408a"></script>	
+	</head>
+	
+	<body>
+		<div class="fluig-style-guide">
+			<form name="form" role="form">
+				<div class="panel panel-default" id="dadosATIVIDADES">
+					<div class="panel-heading" style="cursor: pointer;" onclick="mostrarOcultarDiv('div-processo')">DADOS DO PROCESSO</div>
+					<div class="panel-body" id="div-processo" style="display: block;">
+						<!-- DADOS DAS ATIVIDADES -->
+						<div class="form-group row">
+							<div class="col-md-6">
+								<label>Processo</label>
+								<input type="hidden" name="process_id"      id="process_id">
+								<input type="hidden" name="process_version" id="process_version">
+								<input type="hidden" name="class_process"   id="class_process">
+								<input type="zoom" id="process_name" name="process_name" 
+									data-zoom="{'displayKey':'processDescription',
+												'datasetId':'processDefinition',
+												'maximumSelectionLength':'1',
+												'placeholder':'Selecione o Processo',
+												'fields':[
+													{
+														'field':'processId',
+														'label':'ID',
+														'standard':'true',
+														'visible': 'false'
+													},
+													{
+														'field':'processDescription',
+														'label':'Nome do Processo'
+													}
+												]
+											}" />
+							</div>
+							<div class="col-md-6">
+								<label for="nickname_process">Apelido do Processo</label>
+								<input type="text" class="form-control" name="nickname_process" id="nickname_process" onchange="changeClassProcess(this.value)"></input>
+							</div>
+						</div>
+					</div>
+				</div>
+	
+				<div class="panel panel-default" id="dadosATIVIDADES">
+					<div class="panel-heading" style="cursor: pointer;" onclick="mostrarOcultarDiv('div-activities')">DADOS DAS ATIVIDADES</div>
+					<div class="panel-body" id="div-activities" style="display: block;">
+						<div class="table-responsive">
+							<table id="table-activities" tablename="table-activities" class="table" nodeletebutton="true" noaddbutton="true">
+								<thead>
+									<tr>
+										<!-- CAMPOS -->
+										<th style="text-align: center; width: 100px;"><strong>Monitorar</strong></th>
+										<th style="text-align: center;"><strong>Nome da Atividade</strong></th>
+										<th style="text-align: center; width: 120px;"><strong>Se<br>Aprovado</strong></th>
+										<th style="text-align: center; width: 120px;"><strong>Se<br>Reprovado</strong></th>
+										<th style="text-align: center; width: 120px;"><strong>Se<br>Recusado</strong></th>
+										<th style="text-align: center;"><strong>Nome Campo Controle</strong></th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<!-- CAMPOS -->
+										<td>
+											<!-- MONITORAR / APROVACAO -->
+											<input type="hidden" name="aux_approval_activities" id="aux_approval_activities">
+											<select class="form-control" name="approval_activities" id="approval_activities" onchange="defineVALOR(this)">
+												<option value="sim">Sim</option>
+												<option value="nao">N&atilde;o</option>
+											</select>
+										</td>
+	
+										<!-- NOME DA ATIVIDADE -->
+										<td>
+											<textarea id="name_activities" name="name_activities" class="form-control thtable edtEDA" readonly="readonly" style="white-space: pre-wrap;resize: vertical;"></textarea>
+										</td>
+	
+										<!-- SE APROVADO -->
+										<td>
+											<label>Sequ&ecirc;ncia</label>
+											<input type="number" class="form-control" name="sequence_approved" id="sequence_approved">
+											<label>Final</label>
+											<input type="number" class="form-control" name="final_approved"    id="final_approved">
+											<label>Valor</label>
+											<input type="text" class="form-control" name="value_approved"    id="value_approved">
+										</td>
+	
+										<!-- SE REPROVADO -->
+										<td>
+											<label>Sequ&ecirc;ncia</label>
+											<input type="number" class="form-control" name="sequence_reproved" id="sequence_reproved">
+											<label>Final</label>
+											<input type="number" class="form-control" name="final_reproved"    id="final_reproved">
+											<label>Valor</label>
+											<input type="text" class="form-control" name="value_reproved"    id="value_reproved">
+										</td>
+	
+										<!-- SE RECUSADO -->
+										<td>
+											<label>Sequ&ecirc;ncia</label>
+											<input type="number" class="form-control" name="sequence_refused" id="sequence_refused">
+											<label>Final</label>
+											<input type="number" class="form-control" name="final_refused"    id="final_refused">
+											<label>Valor</label>
+											<input type="text" class="form-control" name="value_refused"    id="value_refused">
+										</td>
+	
+										<!-- CAMPOS DE CONTROLE -->
+										<td>
+											<div class="row">
+												<label>Campo de Controle</label>
+												<input type="text" class="form-control" name="control_field" id="control_field" placeholder="|aux_|<nome>|ordem|" title="Informe somente o nome do campo de controle!">	
+											</div>
+											<div class="row">
+												<label>Campo Nome Aprovador</label>
+												<input type="text" class="form-control" name="control_name" id="control_name" placeholder="<nome aprovador>" title="Informe somente o nome do campo do aprovador!">	
+											</div>
+											<div class="row">
+												<label>Campo Data Aprova&ccedil;&atilde;o</label>
+												<input type="text" class="form-control" name="control_date" id="control_date" placeholder="<data aprova&ccedil;&atilde;o>" title="Informe somente o nome do campo ref. a data de aprova&ccedil;&atilde;o!">	
+											</div>
+										</td>
+										<td style="display:none;"><input type="hidden" id="code_activities" name="code_activities" /></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+	</body>
+</html>

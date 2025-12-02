@@ -1,0 +1,36 @@
+li.header-results {
+ display: none !important;
+}
+
+.select {
+  background: #EEE; 
+  pointer-events: none;
+  touch-action: none;
+}
+
+.required:after {
+    color: red;
+    font-weight: bold;
+    content:" *";
+}
+
+.panel-heading {
+  background-color: #e5e5e5 !important;
+  cursor:pointer !important;
+}
+
+.panel-default {
+	border: none !important;
+}
+
+#dataAprovacaoConselho {
+  text-align: center !important;	
+}
+
+::placeholder { 
+  color: orange !important;
+}
+
+.myLabel {
+  font-size: small;
+}

@@ -7,6 +7,7 @@ var AprovacaoContext = {
 	lerCV: false,
 	verCV: false,
 	verFILIAIS: false,
+	lerPA_VRVA: false,
 	
 	// Dados principais
 	CC: '',
@@ -165,7 +166,7 @@ function servicetask13(attempt, message) {
 	if(valorCarta=='' || valorCarta==null)
 		valorCarta = AprovacaoContext.valorSolicitado;
 
-	// SE CATA DE EXCESSAO TROCAR VALOR PELO VALOR DA CARTA
+	// SE CARTA DE EXCESSAO TROCAR VALOR PELO VALOR DA CARTA
 	if(AprovacaoContext.cartaExcecao == 'S' || AprovacaoContext.cartaExcecao == 'on' || AprovacaoContext.cartaExcecao == "Sim" || AprovacaoContext.cartaExcecao=='sim' )
 		AprovacaoContext.valorSolicitado = valorCarta;
 
@@ -314,8 +315,18 @@ function alcadasPadrao(){
 		}
 	}
 
+	// SE APROVACAO FOR PAGAMENTO ANTECIPADO VR/VA - TODOS OS APROVADORES SAO NIVEL 1 E FILTRAR SOMENTE PELO NIVEL PA_VRVA
+	if(AprovacaoContext.operacao=='Pagamento Antecipado - VR/VA' || AprovacaoContext.operacao=='PA_VRVA'){
+		log.info("### AprovacaoUnificada.serviceTask13 - operacao PA_VRVA: "+AprovacaoContext.operacao);
+		AprovacaoContext.lerCV      = false;
+		AprovacaoContext.lerFILIAIS = false;
+		AprovacaoContext.lerCCUSTOS = false;
+		AprovacaoContext.lerPA      = false;
+		AprovacaoContext.lerPA_VRVA = true;
+	}
+
 	// LEITURA CONFORME ALCADAS DE APROVACAO UNIFICADAS x GRUPOS DE APROVACAO (CENTRO DE CUSTO E FILIAL) 
-	for (var iGrupo = 0; iGrupo <=3; iGrupo++) {
+	for (var iGrupo = 0; iGrupo <=4; iGrupo++) {
 		log.info("### AprovacaoUnificada.serviceTask13 - LEITURA "+iGrupo+" - wf: "+getValue("WKNumProces"));
 		log.dir(AprovacaoContext.lerCV);
 		log.dir(AprovacaoContext.lerCCUSTOS);
@@ -372,6 +383,16 @@ function alcadasPadrao(){
 
 			// GRUPO 3 - PA - PAGAMENTO ANTECIPADO
 			params.push( DatasetFactory.createConstraint("PA",'sim','sim',ConstraintType.MUST) );
+		}
+
+		else if(iGrupo==4){
+			log.info("### AprovacaoUnificada.serviceTask13 - iGrupo: "+iGrupo);
+			// SE lerPA_VRVA FOR FALSE NAO LER PAGAMENTO ANTECIPADO VR/VA
+			if(!AprovacaoContext.lerPA_VRVA)
+				continue;	
+
+			// GRUPO 4 - PA_VRVA - PAGAMENTO ANTECIPADO VR/VA
+			params.push( DatasetFactory.createConstraint("PA_VRVA",'sim','sim',ConstraintType.MUST) );
 		}
 		
 		log.info("### AprovacaoUnificada.serviceTask13 - DS_ALCADAS_UNIFICADAS: "+iGrupo);
@@ -659,6 +680,20 @@ function isExcecaoCompliance(qUSER,qFORNECEDOR){
 		}
 	}
 	return isExcecao;
+}
+
+// FUNCAO PARA IDENTIFICAR PA_VRVA
+function isPA_VRVA(){
+	log.info("### AprovacaoUnificada.serviceTask13 - isPA_VRVA()");
+	var isVRVA = false;
+	
+	// VERIFICAR SE OPERACAO = PA - PAGAMENTO ANTECIPADO
+	if(AprovacaoContext.operacao.toLowerCase()=='pagamento antecipado vr_va'){
+		isVRVA = true;
+	}
+	
+	log.info("### AprovacaoUnificada.serviceTask13 - isPA_VRVA() - isVRVA: "+isVRVA);
+	return isVRVA;
 }
 
 // FUNCAO PARA ALCADAS DE REEMBOLSO E/OU ADIANTAMENTO

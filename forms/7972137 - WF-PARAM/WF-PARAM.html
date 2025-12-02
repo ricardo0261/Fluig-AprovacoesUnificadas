@@ -1,0 +1,86 @@
+<!-- 
+     ANALISTA RICARDO ANDRADE
+     *** NAO IDENTAR ESTE CODIGO ***
+         VERSAO 1.0.0
+  -->   
+<html>
+	<head>
+		<!-- PADRAO -->
+		<link type="text/css" rel="stylesheet" href="/portal/resources/style-guide/css/fluig-style-guide.min.css" />
+		<script type="text/javascript" src="/portal/resources/js/jquery/jquery.js"></script>
+		<script type="text/javascript" src="/portal/resources/js/jquery/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="/portal/resources/js/mustache/mustache-min.js"></script>
+		<script type="text/javascript" src="/portal/resources/style-guide/js/fluig-style-guide.min.js" charset="utf-8"></script>
+		
+		<!-- CUSTOMIZADOS -->
+		<script type="text/javascript" src="custom/custom.js?SM2CE_2408a"></script>
+		<link type="text/css" rel="stylesheet" href="css/custom.css?SM2CE_2408a" />
+		
+		<!-- IDENTIFICACAO -->
+		<meta name="description" content="Workflow - Par&acirc;metros Gerais">
+		<meta name="Analyst"     content="Ricardo Andrade">
+		<meta name="company"     content="SM2CE">
+		<meta name="name"        content="Workflow - Par&acirc;metros Gerais">
+		<meta name="dataset"     content="DS_WF-PARAM">
+		
+		<title>WORKFLOW - Par&acirc;metros GERAIS</title>  
+	</head>
+	<body id="WorkflowAprovacoesParametrosGerais" class="fluig-style-guide">
+		<form name="formWFA_Param" id="formWFA_Param" action="" method="post">
+			<div class="panel panel-default" style="width: 99% !important;">
+			    <div class="panel-body">
+					<!-- TITULO FORM -->
+					<h1 style="font-family: fantasy;">WORKFLOWS - Par&atilde;metros GERAIS</h1>
+					
+					<!-- CONTROLE -->	
+					<div class="row" style="margin-left: 20px !important;">							
+			            <h4 style="font-family: fantasy;">Par&acirc;metros Aprova&ccedil;&otilde;es</h4>
+			            <div class="col-md-3 col-xs-3">
+							<input  type="text" class="thinput" id="ASYNC_LOG" name="ASYNC_LOG" style="text-align:center;" value="sim" />
+							<p class="thp" style="text-align:center;">ASYNC_LOG</p>
+						</div>
+			            <div class="col-md-3 col-xs-3">
+							<input  type="text" class="thinput" id="ASYNC_MAX_REQUESTS" name="ASYNC_MAX_REQUESTS" style="text-align:center;" value="10"/>
+							<p class="thp" style="text-align:center;">ASYNC_MAX_REQUESTS</p>
+						</div>
+			            <div class="col-md-3 col-xs-3">
+							<input  type="text" class="thinput" id="ASYNC_CALL_WAIT" name="ASYNC_CALL_WAIT" style="text-align:center;" value="1000"/>
+							<p class="thp" style="text-align:center;">ASYNC_CALL_WAIT</p>
+						</div>
+			            <div class="col-md-3 col-xs-3">
+							<input  type="number" class="thinput" id="TIPO_APROVACAO" name="TIPO_APROVACAO" style="text-align:center;" value="1" title="1= 164 (Soap) e 2=181 (dataset)"/>
+							<p class="thp" style="text-align:center;">Tipo de Aprovação</p>
+						</div>
+					</div>
+
+					<!-- URL PADRAO - myURL -->
+					<div class="row" style="margin-left: 20px !important;">							
+			            <h4 style="font-family: fantasy;">URL Padrão</h4>
+			            <div class="col-md-12 col-xs-12">
+							<input  type="text" class="thinput" id="myURL" name="myURL" style="text-align:center;" 
+									value="https://oncoclinicas.fluig.cloudtotvs.com.br" />
+							<p class="thp" style="text-align:center;">URL Padrão</p>
+						</div>
+					</div>
+					
+					<!-- IMAGEM -->
+					<div class="row" style="margin-left: 20px !important;">							
+			            <h4 style="font-family: fantasy;">Arquivos de Imagens</h4>
+			            <div class="row col-md-12 col-xs-12">
+							<input  type="text" class="thinput" id="GIF_PROCESSANDO" name="GIF_PROCESSANDO" style="text-align:center;" 
+									value="" />
+							<p class="thp" style="text-align:center;">GIF_PROCESSANDO</p>
+						</div>
+					</div>
+											
+					<!-- FIM DO FORMULARIO -->
+					<div class="row form-group col-md-12 col-xs-12">
+						<hr style="margin-bottom: 0px;">
+						<label class="thp">Fim do formul&aacute;rio</label>
+					</div>
+					<!-- FIM DO PAINEL -->
+				</div>
+			</div>
+		</form>
+	</body>
+</html>

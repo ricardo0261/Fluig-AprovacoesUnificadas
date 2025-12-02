@@ -134,6 +134,11 @@ $(function(){
 						$('#nomeSolicitante'  ).val( dsColleague.values[0]["colleagueName"] );
 						$('#emailSolicitante' ).val( dsColleague.values[0]["mail"] );
 
+						// AJUSTE USUARIO EM TELA 12.11.2025
+						$("#nomeCriacao"      )[0].innerHTML = dsColleague.values[0]["colleagueName"];
+						$('#nomeSolicitante'  )[0].innerHTML = dsColleague.values[0]["colleagueName"];
+						$('#emailSolicitante' )[0].innerHTML = dsColleague.values[0]["mail"];
+						
 						var qData = new Date( dsProcessoOrigem.values[0]["startDateProcess"] );
 						var qDataFormatada = pad(qData.getDate()) + '/' + pad(qData.getMonth() + 1) + '/' + qData.getFullYear();
 						var qHoraFormatada = pad(qData.getHours()) + ':' + pad(qData.getMinutes()) + ':' + pad(qData.getSeconds());

@@ -1,0 +1,371 @@
+<html>
+   <head>
+      <!-- DATASET ds_Alcadas -->
+      <meta charset="UTF-8">
+      </meta>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </meta>
+      <meta name="description" content="Alçadas de Aprovações">
+      </meta>
+      <!-- INSERTS PADRAO FLUIG -->
+      <link type="text/css" rel="stylesheet" href="/style-guide/css/fluig-style-guide.min.css"/>
+      <script type="text/javascript" src="/portal/resources/js/jquery/jquery.js"></script>
+      <script type="text/javascript" src="/portal/resources/js/jquery/jquery-ui.min.js"></script>
+      <script type="text/javascript" src="/portal/resources/js/mustache/mustache-min.js"></script>
+      <script type="text/javascript" src="/style-guide/js/fluig-style-guide.min.js" charset="utf-8"></script>
+      <script type="text/javascript" src="/webdesk/vcXMLRPC.js"></script>
+      <!-- EXCEL -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+      <script type="text/javascript" src="excel/excel.js"></script>
+      <script type="text/javascript" src="excel/excelexportjs.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+      <!-- CSS E CUSTOM -->
+      <link type="text/css" rel="stylesheet" href="css/custom.css" />
+      <script type="text/javascript" src="custom/custom.js"></script>
+   </head>
+   <body>
+      <div class="fluig-style-guide">
+         <form name="form" role="form">
+            <!-- DADOS DA SOLICITACAO E WF DE ORIGEM -->
+            <div class="form-section">
+               <!-- Cabeçalho com Logo -->
+               <div class="header-section">
+                  <div class="header-content">
+                     <div class="logo-section">
+                        <img src="images/novo_logo.png" alt="Logo Oncoclinicas" class="logo-img">
+                        <div class="title-section" style="margin-left: 8px;">
+                           <h1>ALÇADAS DE APROVAÇÃO</h1>
+                           <p>Sistema de fichários de alçadas e aprovadores - Oncoclinicas</p>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <!-- CONTROLE -->
+               <input type="hidden" name="codSolicitante"     id="codSolicitante" />
+               <input type="hidden" name="campoIdentificador" id="campoIdentificador" />
+               <!-- DADOS -->
+               <h3 style="font-family: fantasy;">Dados da Solicitação</h3>
+               <div class="row">
+                  <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+                     <label>Responsável Criação/Edição</label>
+                     <input type="text" class="form-control" id="nomeSolicitante" name="nomeSolicitante" readonly="readonly" />
+                  </div>
+                  <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+                     <label>e-mail</label>
+                     <input type="text" class="form-control" id="emailSolicitante" name="emailSolicitante" readonly="readonly" />
+                  </div>
+                  <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2">
+                     <label>Data Atualização</label>
+                     <input type="text" class="form-control" id="dtAtualizacaoForm" name="dtAtualizacaoForm" readonly="readonly" />
+                  </div>
+               </div>
+            </div>
+            
+            <!-- CLASSIFICAR ALCADAS -->
+            <div class="form-section">
+               <h3 style="font-family: fantasy;">Classificar Alçada - Valores</h3>
+               <div class="row">
+                  <!-- CAMPOS DE INPUT - LADO ESQUERDO -->
+                  <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                     <div class="form-group">
+                        <label for="nomePlanilha">Nome da Planilha/Fichário</label>
+                        <input type="text" class="form-control" id="nomePlanilha" name="nomePlanilha" placeholder="Digite o nome da planilha..." required />
+                     </div>
+                     <br>
+                  </div>
+                  <!-- TABELA DE VALORES - LADO DIREITO -->
+                  <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                     <div class="form-group">
+                        <label>Tabela de Valores</label>
+                        <div class="table-responsive">
+                           <table tablename="tbValores" id="tbValores" deleteicon="delete.png" noaddbutton="true" class="table table-bordered table-striped table-hover">
+                              <thead>
+                                 <tr>
+                                    <th style="text-align: center;">Seq</th>
+                                    <th style="text-align: center;">Sem Carta de Exceção</th>
+                                    <th style="text-align: center;">Com Carta de Exceção</th>
+                                 </tr>
+                              </thead>
+                              <tbody>
+                                 <tr id="lnVLR">
+                                    <td><input type="number" class="form-control" id="vlrNivel"    name="vlrNivel"    required style="width: 70px !important;text-align: center !important;" placeholder="1" min="1" /></td>
+                                    <td><input type="text"   class="form-control" id="vlrSemCarta" name="vlrSemCarta" required style="text-align:center;" placeholder="0,00" mask="#00.000.000.000,00" /></td>
+                                    <td><input type="text"   class="form-control" id="vlrComCarta" name="vlrComCarta" required style="text-align:center;" placeholder="0,00" mask="#00.000.000.000,00" /></td>
+                                 </tr>
+                              </tbody>
+                           </table>
+                        </div>
+                        <!-- BOTÃO PARA INSERIR NOVO VALOR -->
+                        <div class="col-md-3 form-group">
+                           <button type="button" class="btn btn-primary btn-block" id="btnInserirValor">
+                           <i class="fluigicon fluigicon-plus icon-sm"></i> Novo Valor
+                           </button>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            
+            <!-- LANCAR ALCADAS -->
+            <div class="form-section">
+               <h3 style="font-family: fantasy;">Lançar Alçada</h3>
+               <div class="row">
+                  <!-- TABELA PAI-FILHO DO FLUIG PARA INORMAR: CENTRO DE CUSTO, APROVADOR NIVEIS, C/C OPERACIONAIS, C/C NAO OPERACIONAIS E HOLDING-->
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                     <!-- FILTROS DE COLUNAS -->
+                     <div class="form-group">
+                        <label id="verFiltros">Filtrar</label>
+                        <div id="filtroDIV">
+                        </div>
+                     </div>
+                     <!-- TABELA DE ALCADAS -->
+                     <label>Informe os dados conforme seleção</label>                                                                                                    
+                     <div class="table-responsive">
+                        <table tablename="tbAlcadas" id="tbAlcadas" deleteicon="delete.png" noaddbutton="true" class="table table-bordered table-striped table-hover table-condensed">
+                           <thead>
+                              <tr>
+                                 <th>Seg</th>
+                                 <th>Nível</th>
+                                 <th class="centroCusto" >Cod C.Custo</th>
+                                 <th class="centroCusto" >Centro de Custo</th>
+                                 <th class="filial"      >Cod Filial</th>
+                                 <th class="filial"      >Filial</th>
+                                 <th class="PA"          >Usabilidade</th>
+                                 <th class="classeValor" >Cod Classe</th>
+                                 <th class="classeValor" >Classe de Valor</th>
+                                 <th class="cod"         >Cod Aprovador</th>
+                                 <th>Aprovador</th>
+                              </tr>
+                           </thead>
+                           <tbody>
+                              <tr class="remove" id="lnAPV">
+                                 <td>
+                                    <input type="number" class="form-control coldCod" id="aprovadorNivel" name="aprovadorNivel" style="text-align: center !important;" required/>
+                                 </td>
+                                 <td>
+                                    <input type="hidden" id="auxTipoAprovacao" name="auxTipoAprovacao" />
+                                    <select class="form-control" id="tipoAprovacao" name="tipoAprovacao" required onchange="verTipoAprovacao(this)">
+                                       <option value="nao_informado">Selecione...</option>
+                                       <option value="CC"      >Centro de Custo</option>
+                                       <option value="SP"      >Suprimentos</option>
+                                       <option value="FL"      >Filial</option>
+                                       <option value="CV"      >Classe de Valor</option>
+                                       <option value="PA"      >Pagamento Antecipado</option>
+                                       <option value="PA_VRVA" >Pagamento Antecipado/VR-VA</option>
+                                       <option value="CM"      >Carreira Médica</option>
+                                       <option value="AR"      >Adiantamento/Reembolso Opex</option>
+                                    </select>
+                                 </td>
+                                 <td class="centroCusto">
+                                    <input type="text" class="form-control coldCod" id="zoomCentroCusto_Id" name="zoomCentroCusto_Id" readonly />
+                                 </td>
+                                 <td class="centroCusto">
+                                    <input type="zoom" id="zoomCentroCusto" name="zoomCentroCusto" class="form-control myZoom centroCusto" 
+                                       data-zoom="{'displayKey': 'DESCRICAO', 
+                                       'maximumSelectionLength':'1', 
+                                       'datasetId':'ds_centrosCusto', 
+                                       'placeholder':'Escolha um Centro de Custo', 
+                                       'fields':[{'field':'CODIGO','label':'Cod.'},
+                                       {'field':'DESCRICAO','label':'Descrição','standard':'true'}
+                                       ] }" 
+                                       />
+                     </div>
+                     </td>
+                     <td class="filial">
+                     <input type="text" class="form-control coldCod" id="zoomFilial_Id" name="zoomFilial_Id" readonly />
+                     </td>
+                     <td class="filial">
+                     <input type="zoom" id="zoomFilial" name="zoomFilial" class="form-control myZoom filial" 
+                        data-zoom="{'displayKey':'DESCRICAO',
+                        'datasetId':'ds_filiais',
+                        'maximumSelectionLength':'1',
+                        'placeholder':'Escolha a Filial',
+                        'fields':[  {'field':'CODIGO'       ,'label':'Codigo'},
+                        {'field':'DESCRICAO'    ,'label':'Filial'       ,'standard': 'true' },
+                        {'field':'CGC'          ,'label':'CGC'          ,'visible' : 'false'},
+                        {'field':'ID_GESTOR'    ,'label':'ID_GESTOR'    ,'visible' : 'false'},
+                        {'field':'CODIGO_FLUIG' ,'label':'CODIGO_FLUIG' ,'visible' : 'false'},
+                        {'field':'RAZAO_SOCIAL' ,'label':'RAZAO_SOCIAL' ,'visible' : 'false'},
+                        {'field':'ENDERECO'     ,'label':'ENDERECO'     ,'visible' : 'false'},
+                        {'field':'COMPLEMENTO'  ,'label':'COMPLEMENTO'  ,'visible' : 'false'},
+                        {'field':'CEP'          ,'label':'CEP'          ,'visible' : 'false'},
+                        {'field':'BAIRRO'       ,'label':'BAIRRO'       ,'visible' : 'false'},
+                        {'field':'CIDADE'       ,'label':'CIDADE'       ,'visible' : 'false'},
+                        {'field':'ESTADO'       ,'label':'ESTADO'       ,'visible' : 'false'},
+                        {'field':'CLASSIFICAÇÃO','label':'CLASSIFICAÇÃO','visible' : 'false'},
+                        {'field':'TASY'         ,'label':'TASY'         ,'visible' : 'false'},
+                        {'field':'USABILIDADE'  ,'label':'FLUIG'        ,'visible' : 'false'}
+                        ]}" 
+                        />
+                     </td>
+                     <td class="PA">
+                     <div class="usabilidade-container" id="usabilidade-container">
+                     <div class="checkbox-list" id="checkbox-list-usabilidade">
+                     <!-- Os checkboxes serão gerados dinamicamente via JavaScript -->
+                     </div>
+                     <input type="hidden" class="form-control filial" id="usabilidade" name="usabilidade">
+                     </div>
+                     </td>
+                     </td>
+                     <td class="classeValor">
+                     <input type="text" class="form-control coldCod" id="zoomClasseValor_Id" name="zoomClasseValor_Id" readonly />
+                     </td>
+                     <td class="classeValor">
+                     <input type="zoom" id="zoomClasseValor" name="zoomClasseValor" class="form-control myZoom classeValor " 
+                        data-zoom="{'displayKey':'DESCRICAO',
+                        'maximumSelectionLength':'1',
+                        'datasetId':'DS_PCO_CLASSE_VALOR',
+                        'filterValues':'FILIAL,00000',
+                        'placeholder':'Escolha uma classe de valor',
+                        'fields':[{'field':'CLASSE_VLR','label':'Classe'},
+                        {'field':'DESCRICAO' ,'label':'Descrição','standard':'true'},
+                        {'field':'FILIAL'    ,'label':'Filial'}
+                        ]}" 
+                        />
+                     </td>
+                     <td class="cod">
+                     <input type="text" class="form-control cod" id="apv_Usuario_Id" name="apv_Usuario_Id" readonly />
+                     </td>
+                     <td>
+                     <input type="zoom" id="apv_Usuario" name="apv_Usuario" class="form-control myZoom"
+                        data-zoom="{'displayKey':'colleagueName',
+                        'datasetId':'colleague',
+                        'maximumSelectionLength':'1',
+                        'placeholder':'Aprovador...',
+                        'fields':[{'field':'colleaguePK.colleagueId','label':'Codigo','visible':'false'},
+                        {'field':'colleagueName','label':'Nome','standard':'true'}
+                        ]}" 
+                        />
+                     </td>
+                     </tr>
+                     </tbody>
+                     </table>
+                  </div>
+                  <!-- COMPLEMENTO BOTAO INSERIR NOVA LINHA DE APROVACAO -->
+                  <div class="row form-group">
+                     <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2">
+                        <button type="button" class="btn btn-primary" id="btnInserirAprovador">
+                           <i class="fluigicon fluigicon-plus icon-sm"></i> Novo Aprovador
+                        </button>
+                     </div>
+                     <!-- EXPORTACAO PARA EXCEL -->
+                     <div class="col-md-2 verBotoes" style="display: none;">
+                        <label>Exportação</label>
+                        <br>
+                        <button type="button" id="btnEXCEL_Exportar" class="btn" data-toggle="button"
+                           onclick="exportarParaExcel()" title="Exportar dados para planilha Excel">
+                        <i class="fluigicon fluigicon-download icon-sm">Excel</i>
+                        </button>
+                        <button type="button" id="btnCSV_Exportar" class="btn" data-toggle="button"
+                           onclick="exportarParaCSV()" title="Exportar dados para CSV">
+                        <i class="fluigicon fluigicon-download icon-sm">CSV</i>
+                        </button>
+                     </div>
+                     <!-- IMPORTACAO DO EXCEL -->
+                     <div class="col-md-3 verBotoes" style="display: none;">
+                        <label>Arquivo para Importação</label>
+                        <br>
+                        <input type="file" id="fileUpload" name="fileUpload" class="form-control" />
+                     </div>
+                     <div class="col-md-1 verBotoes" style="display: none;">
+                        <label>Importação</label>
+                        <br>
+                        <button type="button" id="btnEXCEL_Importar" class="btn" data-toggle="button" onclick="Upload('tbAlcadas')" title="Inserir dados conforme planilha Excel">
+                        <i class="fluigicon fluigicon-upload icon-sm">Excel</i>
+                        </button>
+                     </div>
+                     <!-- VALIDAR CADASTROS -->
+                     <div class="col-md-1 verBotoes" style="display: none;">
+                        <label>Validação</label>
+                        <br>
+                        <button type="button" id="btnValidar" class="btn" data-toggle="button" title="Validar dados">
+                        <i class="fluigicon fluigicon-check-circle-on icon-sm"></i>
+                        </button>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <br>
+            
+            <!-- LANCAR EXCESSOES -->
+            <div class="form-section">
+               <h3 style="font-family: fantasy;">Exceções</h3>
+               <div class="row">
+                  <!-- TABELA DE EXCESSOES -->
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                     <div class="form-group">
+                        <label>Lista de Exceções</label>
+                        <div class="table-responsive">
+                           <table tablename="tbExcessoes" id="tbExcessoes" deleteicon="delete.png" noaddbutton="true" class="table table-bordered table-striped table-hover table-condensed">
+                              <thead>
+                                 <tr>
+                                    <th style="width: 70px !important;">Seq.<br></th>
+                                    <th style="width:150px !important;">N&iacute;vel<br></th>
+                                    <th style="width:370px !important;">C/Custos</th>
+                                    <th style="width:350px !important;">Justificativa</th>
+                                 </tr>
+                              </thead>
+                              <tbody>
+                                 <tr>
+                                    <td>
+                                       <!-- INFORME O NIVEL - SEMPRE INICIAR EM 1 - CAMPO NUMERICO INTEIRO -->
+                                       <input type="number" class="form-control" id="excessaoNivel" name="excessaoNivel" style="text-align: center;" required />
+                                    </td>
+                                    <td>
+                                       <!-- INFORME O NIVEL TIPO DE VALIDACAO -->
+                                       <select class="form-control" id="tipoExcessao" name="tipoExcessao" required >
+                                          <option value="CC">Centro de Custo</option>
+                                       </select>
+                                    </td>
+                                    <td>
+                                       <!-- PAPEL APROVADOR ccNaoOperacionais -->
+                                       <input type="zoom"   id="ccExcessao" name="ccExcessao" class="form-control"
+                                          data-zoom="{'displayKey': 'FILTRO',
+                                          'maximumSelectionLength':'1',
+                                          'datasetId':'ds_centrosCusto',
+                                          'placeholder':'Escolha um Centro de Custo',
+                                          'fields':[	{	'field':'CODIGO',
+                                          'label':'Cod.'
+                                          },{	'field':'DESCRICAO',
+                                          'label':'Descriç&atilde;o',
+                                          'standard':'true'
+                                          }]
+                                          }" />
+                                    </td>
+                                    <td> 
+                                       <textarea rows="2" class="form-control" required="required" style="overflow:auto;resize:vertical;height:auto !important;text-align:center;font-weight:bold;" 
+                                          placeholder="Digite aqui a justificativa desta exce&ccedil;&atilde;o..." 
+                                          id="justificaExcessao" name="justificaExcessao"></textarea>
+                                    </td>
+                                    <td style="display: none;">
+                                       <input type="hidden" id="ccExcessao_Id"  name="ccExcessao_Id" />
+                                    </td>
+                                 </tr>
+                              </tbody>
+                           </table>
+                        </div>
+                        <br>
+                        <!-- COMPLEMENTO BOTAO INSERIR NOVA LINHA DE EXCECAO -->
+                        <div class="row form-group">
+                           <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2"> 
+                              <button type="button" class="btn btn-primary" id="btnInserirExcessao">
+                                 <i class="fluigicon fluigicon-plus icon-sm"></i> Inserir exceção
+                              </button>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </form>
+      </div>
+      <!-- FIM DO FORMULARIO -->
+      <footer class="footer">
+         <div class="container text-center">
+            <p class="footer-text" style="text-align: center;">
+               © 2025 Oncoclinicas - Fichários de Aprovações Unificadas
+            </p>
+         </div>
+      </footer>
+      <br>
+   </body>
+</html>

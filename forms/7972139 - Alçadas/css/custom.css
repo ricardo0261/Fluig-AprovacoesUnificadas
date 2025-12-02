@@ -1,0 +1,259 @@
+/*
+  custom.css - Estilos customizados para o formulário de Alçadas de Aprovação
+  Comentários explicativos adicionados para facilitar manutenção e entendimento.
+*/
+
+/* Painel de título estilizado (cards principais) */
+.panel-estilizado {
+  background: #35b1a7 !important; /* Cor de fundo do painel */
+  color: #fff !important;         /* Cor do texto do painel */
+  font-size: 16px !important;     /* Tamanho da fonte do painel */
+}
+
+/* Largura fixa para campos específicos */
+.px300 { width: 300px !important; }
+.bpm-mobile-trash-column { width: 30px !important; }
+td { max-width: 600px; }
+.coldCod { max-width: 100px !important; }
+
+/* Ajuste para campos de zoom ocuparem toda a célula */
+.myZoom { width: 100% !important; height: 100% !important; }
+
+/* Tabelas customizadas (tbAlcadas, tbValores e tbExcessoes) */
+#tbAlcadas, #tbValores, #tbExcessoes {
+  font-family: 'Segoe UI', Arial, sans-serif; /* Fonte moderna */
+  border-radius: 8px;                        /* Bordas arredondadas */
+  overflow: hidden;                          /* Esconde overflow */
+  background: #fafbfc;                       /* Fundo suave */
+  width: 100%;                               /* Ocupa toda a largura */
+  border: 1.5px solid #cfd8dc !important;    /* Borda externa visível */
+  border-collapse: separate !important;      /* Força separação das bordas */
+  box-sizing: border-box;                    /* Inclui bordas no tamanho total */
+}
+
+/* Efeito de hover e linhas alternadas nas tabelas */
+#tbAlcadas tbody tr, #tbValores tbody tr, #tbExcessoes tbody tr { transition: background 0.2s; }
+#tbAlcadas tbody tr:nth-child(even), #tbValores tbody tr:nth-child(even), #tbExcessoes tbody tr:nth-child(even) { background: #f5f7fa; }
+#tbAlcadas tbody tr:hover, #tbValores tbody tr:hover, #tbExcessoes tbody tr:hover { background: #e0f7fa; }
+
+/* Células das tabelas: borda inferior e alinhamento vertical */
+#tbAlcadas tbody tr td, #tbValores tbody tr td, #tbExcessoes tbody tr td {
+  vertical-align: middle;
+  padding: 8px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+/* Espaçamento horizontal entre colunas da tbAlcadas e tbExcessoes */
+#tbAlcadas tbody tr td:not(:last-child), #tbExcessoes tbody tr td:not(:last-child) { padding-right: 12px; }
+#tbAlcadas tbody tr td:not(:first-child), #tbExcessoes tbody tr td:not(:first-child) { padding-left: 12px; }
+
+/* Div interna de cada célula: remove padding/margin extra */
+#tbAlcadas tbody tr td > div, #tbValores tbody tr td > div, #tbExcessoes tbody tr td > div {
+  display: block;
+  padding: 0;
+  margin: 5px; /* Espaço interno entre campos */
+  background: transparent;
+  border-radius: 0;
+}
+
+/* Labels dos campos dentro das células */
+#tbAlcadas tbody tr td > div label, #tbValores tbody tr td > div label, #tbExcessoes tbody tr td > div label {
+  color: #6c757d;         /* Cor suave para label */
+  font-size: 12px;        /* Tamanho menor para label */
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+/* Inputs e selects das células: visual moderno e responsivo */
+#tbAlcadas tbody tr td > div input,
+#tbAlcadas tbody tr td > div select,
+#tbValores tbody tr td > div input,
+#tbValores tbody tr td > div select,
+#tbExcessoes tbody tr td > div input,
+#tbExcessoes tbody tr td > div select {
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: auto;
+  border-radius: 5px;
+  border: 1px solid #cfd8dc;
+  background: #fff;
+  font-size: 14px;
+  padding: 5px 8px;
+  box-shadow: 0 1px 2px rgba(60,60,60,0.04);
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+/* Destaque ao focar nos campos de input/select */
+#tbAlcadas tbody tr td > div input:focus,
+#tbAlcadas tbody tr td > div select:focus,
+#tbValores tbody tr td > div input:focus,
+#tbValores tbody tr td > div select:focus,
+#tbExcessoes tbody tr td > div input:focus,
+#tbExcessoes tbody tr td > div select:focus {
+  border: 1.5px solid #35b1a7;
+  outline: none;
+  box-shadow: 0 2px 8px rgba(53,177,167,0.08);
+}
+
+/* Coluna Cod com largura fixa (usada para códigos) */
+#tbAlcadas tbody tr td > .cod,
+#tbExcessoes tbody tr td > .cod {
+  width: 300px !important;
+  min-width: 300px !important;
+  max-width: 300px !important;
+}
+
+/* Cursor pointer para divs com onclick (painéis clicáveis) */
+div[onclick] {
+  cursor: pointer !important;
+}
+
+/* Bordas externas e internas das tabelas */
+#tbAlcadas th, #tbValores th, #tbExcessoes th,
+#tbAlcadas td, #tbValores td, #tbExcessoes td {
+  border-right: 1px solid #cfd8dc;
+}
+
+#tbAlcadas th:last-child, #tbValores th:last-child, #tbExcessoes th:last-child,
+#tbAlcadas td:last-child, #tbValores td:last-child, #tbExcessoes td:last-child {
+  border-right: none;
+}
+
+#tbAlcadas tr:last-child td, #tbValores tr:last-child td, #tbExcessoes tr:last-child td {
+  border-bottom: none;
+}
+
+/* Estilos seguindo padrão Fluig para checkboxes de usabilidade */
+.usabilidade-container {
+  width: 100% !important;
+  padding: 10px !important;
+  border: 1px solid #ccc !important;
+  border-radius: 4px !important;
+  background-color: #fff !important;
+}
+
+.checkbox-list {
+  display: block !important;
+  width: 100% !important;
+}
+
+.checkbox-list .custom-checkbox {
+  display: block !important; /* Uma por linha */
+  margin-bottom: 8px !important; /* Espaçamento entre checkboxes */
+  width: 100% !important;
+  clear: both !important;
+}
+
+.checkbox-list .custom-checkbox input[type="checkbox"] {
+  margin-right: 8px !important;
+  vertical-align: middle !important;
+}
+
+.checkbox-list .custom-checkbox label {
+  cursor: pointer !important;
+  font-weight: normal !important;
+  margin-bottom: 0 !important;
+  vertical-align: middle !important;
+  display: inline-block !important;
+}
+
+/* Estilos para o cabeçalho moderno */
+.header-section {
+  background: linear-gradient(135deg, #35b1a7 0%, #2a9389 100%);
+  border-radius: 12px;
+  margin-bottom: 25px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(53, 177, 167, 0.15);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  padding: 20px 25px;
+  gap: 20px;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.logo-img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  background-color: white;
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+}
+
+.title-section {
+  flex: 1;
+  min-width: 0; /* Permite que o texto seja truncado se necessário */
+}
+
+.title-section h1 {
+  color: white;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  line-height: 1.2;
+}
+
+.title-section p {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  margin: 0;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+/* Seções do formulário */
+.form-section {
+  background-color: white;
+  border-radius: 8px;
+  margin-bottom: 25px;
+  padding: 25px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+}
+
+.form-section h3 {
+  color: #35b1a7;
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #35b1a7;
+}
+
+/* Responsividade para dispositivos móveis */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+    padding: 20px;
+    gap: 15px;
+  }
+  
+  .title-section h1 {
+    font-size: 1.5rem;
+  }
+  
+  .title-section p {
+    font-size: 0.9rem;
+  }
+  
+  .logo-img {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .form-section {
+    padding: 15px;
+  }
+}

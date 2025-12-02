@@ -32,7 +32,7 @@
       <version>119</version>
     </processDefinitionVersionPK>
     <versionDescription></versionDescription>
-    <formId>7972140</formId>
+    <formId>7640845</formId>
     <editionMode>true</editionMode>
     <updateAttachmentsVersion>false</updateAttachmentsVersion>
     <controlsAttachmentsSecurity>false</controlsAttachmentsSecurity>
@@ -964,6 +964,7 @@ var AprovacaoContext = {
 	lerCV: false,
 	verCV: false,
 	verFILIAIS: false,
+	lerPA_VRVA: false,
 	
 	// Dados principais
 	CC: &apos;&apos;,
@@ -1122,7 +1123,7 @@ function servicetask13(attempt, message) {
 	if(valorCarta==&apos;&apos; || valorCarta==null)
 		valorCarta = AprovacaoContext.valorSolicitado;
 
-	// SE CATA DE EXCESSAO TROCAR VALOR PELO VALOR DA CARTA
+	// SE CARTA DE EXCESSAO TROCAR VALOR PELO VALOR DA CARTA
 	if(AprovacaoContext.cartaExcecao == &apos;S&apos; || AprovacaoContext.cartaExcecao == &apos;on&apos; || AprovacaoContext.cartaExcecao == &quot;Sim&quot; || AprovacaoContext.cartaExcecao==&apos;sim&apos; )
 		AprovacaoContext.valorSolicitado = valorCarta;
 
@@ -1271,8 +1272,18 @@ function alcadasPadrao(){
 		}
 	}
 
+	// SE APROVACAO FOR PAGAMENTO ANTECIPADO VR/VA - TODOS OS APROVADORES SAO NIVEL 1 E FILTRAR SOMENTE PELO NIVEL PA_VRVA
+	if(AprovacaoContext.operacao==&apos;Pagamento Antecipado - VR/VA&apos; || AprovacaoContext.operacao==&apos;PA_VRVA&apos;){
+		log.info(&quot;### AprovacaoUnificada.serviceTask13 - operacao PA_VRVA: &quot;+AprovacaoContext.operacao);
+		AprovacaoContext.lerCV      = false;
+		AprovacaoContext.lerFILIAIS = false;
+		AprovacaoContext.lerCCUSTOS = false;
+		AprovacaoContext.lerPA      = false;
+		AprovacaoContext.lerPA_VRVA = true;
+	}
+
 	// LEITURA CONFORME ALCADAS DE APROVACAO UNIFICADAS x GRUPOS DE APROVACAO (CENTRO DE CUSTO E FILIAL) 
-	for (var iGrupo = 0; iGrupo &lt;=3; iGrupo++) {
+	for (var iGrupo = 0; iGrupo &lt;=4; iGrupo++) {
 		log.info(&quot;### AprovacaoUnificada.serviceTask13 - LEITURA &quot;+iGrupo+&quot; - wf: &quot;+getValue(&quot;WKNumProces&quot;));
 		log.dir(AprovacaoContext.lerCV);
 		log.dir(AprovacaoContext.lerCCUSTOS);
@@ -1329,6 +1340,16 @@ function alcadasPadrao(){
 
 			// GRUPO 3 - PA - PAGAMENTO ANTECIPADO
 			params.push( DatasetFactory.createConstraint(&quot;PA&quot;,&apos;sim&apos;,&apos;sim&apos;,ConstraintType.MUST) );
+		}
+
+		else if(iGrupo==4){
+			log.info(&quot;### AprovacaoUnificada.serviceTask13 - iGrupo: &quot;+iGrupo);
+			// SE lerPA_VRVA FOR FALSE NAO LER PAGAMENTO ANTECIPADO VR/VA
+			if(!AprovacaoContext.lerPA_VRVA)
+				continue;	
+
+			// GRUPO 4 - PA_VRVA - PAGAMENTO ANTECIPADO VR/VA
+			params.push( DatasetFactory.createConstraint(&quot;PA_VRVA&quot;,&apos;sim&apos;,&apos;sim&apos;,ConstraintType.MUST) );
 		}
 		
 		log.info(&quot;### AprovacaoUnificada.serviceTask13 - DS_ALCADAS_UNIFICADAS: &quot;+iGrupo);
@@ -1616,6 +1637,20 @@ function isExcecaoCompliance(qUSER,qFORNECEDOR){
 		}
 	}
 	return isExcecao;
+}
+
+// FUNCAO PARA IDENTIFICAR PA_VRVA
+function isPA_VRVA(){
+	log.info(&quot;### AprovacaoUnificada.serviceTask13 - isPA_VRVA()&quot;);
+	var isVRVA = false;
+	
+	// VERIFICAR SE OPERACAO = PA - PAGAMENTO ANTECIPADO
+	if(AprovacaoContext.operacao.toLowerCase()==&apos;pagamento antecipado vr_va&apos;){
+		isVRVA = true;
+	}
+	
+	log.info(&quot;### AprovacaoUnificada.serviceTask13 - isPA_VRVA() - isVRVA: &quot;+isVRVA);
+	return isVRVA;
 }
 
 // FUNCAO PARA ALCADAS DE REEMBOLSO E/OU ADIANTAMENTO
@@ -2100,43 +2135,7 @@ function verificaSeCargaAprovadores(){&#xd;
         <version>1</version>
         <componGrafSequence>44</componGrafSequence>
       </processComponGrafPK>
-      <stateName>Revisada 14.08.25 NFSe</stateName>
-    </ProcessComponGraf>
-    <ProcessComponGraf>
-      <componType>1</componType>
-      <positionX>1250</positionX>
-      <positionY>69</positionY>
-      <processComponGrafPK>
-        <companyId>1</companyId>
-        <processId>wfAprovacaoUnificada</processId>
-        <version>1</version>
-        <componGrafSequence>51</componGrafSequence>
-      </processComponGrafPK>
-      <stateName>Revisada 14.08.25 RA</stateName>
-    </ProcessComponGraf>
-    <ProcessComponGraf>
-      <componType>1</componType>
-      <positionX>1250</positionX>
-      <positionY>140</positionY>
-      <processComponGrafPK>
-        <companyId>1</companyId>
-        <processId>wfAprovacaoUnificada</processId>
-        <version>1</version>
-        <componGrafSequence>52</componGrafSequence>
-      </processComponGrafPK>
-      <stateName>Revisada 01.09.25 Aprovador x Solicitante</stateName>
-    </ProcessComponGraf>
-    <ProcessComponGraf>
-      <componType>1</componType>
-      <positionX>1250</positionX>
-      <positionY>240</positionY>
-      <processComponGrafPK>
-        <companyId>1</companyId>
-        <processId>wfAprovacaoUnificada</processId>
-        <version>1</version>
-        <componGrafSequence>53</componGrafSequence>
-      </processComponGrafPK>
-      <stateName>Revisada 06.09.25 Libra </stateName>
+      <stateName>Revisada 10.11.25 PA VR e VA</stateName>
     </ProcessComponGraf>
   </list>
   <list/>
