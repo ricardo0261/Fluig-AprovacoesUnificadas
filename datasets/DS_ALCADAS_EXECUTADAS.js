@@ -1,26 +1,61 @@
 function createDataset(fields, constraints, sortFields) {
 	var newDataset = DatasetBuilder.newDataset();	
+	
+    // TABELA
+    var const0    = [];
+    	const0[0] = DatasetFactory.createConstraint("PROCESSO",'wfAprovacaoUnificada','AprovaçãoUnificada',ConstraintType.MUST);
+    var dsFORM    = DatasetFactory.getDataset("DS_GED-FORMS",null,const0,null);
+    var TABELA_PRINCIPAL = 'ML001'+dsFORM.getValue(0,"COD_LISTA");
+    for (var index = 0; index < dsFORM.getRowsCount(); index++) {
+    	if(dsFORM.getValue(index,"COD_TABELA")=='targetAutorizacoes')
+    		var targetAutorizacoes = 'ML001'+dsFORM.getValue(index,"COD_LISTA_FILHO");
+    	
+    	if(dsFORM.getValue(index,"COD_TABELA")=='targetAprovadores')
+    		var targetAprovadores  = 'ML001'+dsFORM.getValue(index,"COD_LISTA_FILHO");
+	}
+	
 	var minhaQuery =
-		"SELECT IT1.apvSequencia, IT1.apvLogin, ML.documentid, IT1.apvStatus, ML.numChamadoOrigem "+
-		"	FROM ML0012301 ML, DOCUMENTO D  "+
-		"		INNER JOIN ML0012417 IT1 ON D.NR_DOCUMENTO = IT1.documentid and D.NR_VERSAO = IT1.version "+
+		"SELECT IT1.apvSequencia, IT1.apvLogin, ML.documentid, IT1.apvStatus, ML.numChamadoOrigem, IT1.apvObs "+
+		"	FROM "+TABELA_PRINCIPAL+" ML, DOCUMENTO D  "+
+		"		INNER JOIN "+targetAprovadores+" IT1 ON D.NR_DOCUMENTO = IT1.documentid and D.NR_VERSAO = IT1.version "+
 		"	WHERE ML.documentId    = D.NR_DOCUMENTO "+
 		"		AND ML.version     = D.NR_VERSAO "+
 		"		AND D.COD_EMPRESA  = 1 "+
 		"		AND D.VERSAO_ATIVA = 1 "+
-		"       and IT1.apvStatus  = 'Aprovado' "+
 		"	    and IT1.apvLogin  <> '' AND IT1.apvLogin IS NOT NULL ";
 	
-	var numChamadoOrigem = "'2226683'";
+	// var numChamado = "'4081612'";
+	// var numAtual   = "'4129200'";
+	var numChamado = "'-1'";
+	var numAtual   = "'-1'";
     if (constraints !== null && constraints !== undefined) 
     	for (var i = 0; i < constraints.length; i++) 
-			if (constraints[i].fieldName == 'processoPai') 
-				numChamadoOrigem = constraints[i].initialValue;
-    
-	minhaQuery += " AND ML.numChamadoOrigem = "+numChamadoOrigem;  // '"+constraints[i].initialValue+"'";
+			if (constraints[i].fieldName == 'processoPai') {
+				numAtual    = constraints[i].finalValue;
+				minhaQuery += " AND ML.numChamadoOrigem = "+constraints[i].initialValue;
+			} else if (constraints[i].fieldName == 'numChamado') {
+				numChamado = constraints[i].initialValue;
+				minhaQuery += " AND ML.numChamado = "+numChamado;
+			}
+
+	//minhaQuery += " AND ML.numChamado = "+numChamado;
+
+	minhaQuery += 
+		" UNION ALL "+
+		" SELECT 0 AS apvSequencia,UT.USER_CODE AS apvLogin, ML.documentid, IT1.apvDecisao AS apvStatus, ML.numChamadoOrigem, IT1.apvObs "+
+		"	FROM "+TABELA_PRINCIPAL+" ML, DOCUMENTO D  "+
+		"		INNER JOIN "+targetAutorizacoes+" IT1 ON D.NR_DOCUMENTO = IT1.documentid and D.NR_VERSAO = IT1.version "+
+		"       INNER JOIN FDN_USERTENANT UT ON IT1.apvEMail = UT.EMAIL "+
+		"	WHERE ML.documentId    = D.NR_DOCUMENTO "+
+		"		AND ML.version     = D.NR_VERSAO "+
+		"		AND D.COD_EMPRESA  = 1 "+
+		"		AND D.VERSAO_ATIVA = 1 "+
+		"	    and IT1.apvDecisao = 'Aprovado' "+
+		"	    AND ML.numChamado = "+numAtual;
+
 
 	log.info("start - DS_ALCADAS_EXECUTADAS QUERY: " + minhaQuery);
-	var dataSource = "/jdbc/FluigDSRO";
+	var dataSource = "/jdbc/AppDS";
 	
 	var conn = null;
 	var stmt = null;

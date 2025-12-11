@@ -1,0 +1,177 @@
+{
+	"info": {
+		"_postman_id": "fluig-aprovacoes-unificadas-001",
+		"name": "Fluig - Aprovações Unificadas",
+		"description": "Collection para testes das APIs do Fluig - Aprovações Unificadas",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Workflow",
+			"item": [
+				{
+					"name": "Adicionahistorico",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 201\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									"",
+									"pm.test(\"Response has status field\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('status');",
+									"});",
+									"",
+									"pm.test(\"Status is SUCESSO\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.status).to.eql('SUCESSO');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Define as variáveis de ambiente se não existirem",
+									"if (!pm.environment.get(\"fluig_url\")) {",
+									"    pm.environment.set(\"fluig_url\", \"https://oncoclinicas.fluig.cloudtotvs.com.br\");",
+									"}",
+									"",
+									"if (!pm.environment.get(\"processoId\")) {",
+									"    pm.environment.set(\"processoId\", \"3712163\");",
+									"}",
+									"",
+									"if (!pm.environment.get(\"usuarioId\")) {",
+									"    pm.environment.set(\"usuarioId\", \"integrador.fluig\");",
+									"}",
+									"",
+									"if (!pm.environment.get(\"companyId\")) {",
+									"    pm.environment.set(\"companyId\", \"1\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"companyId\": {{companyId}},\n    \"processInstanceId\": {{processoId}},\n    \"colleagueId\": \"{{usuarioId}}\",\n    \"comment\": \"TESTE COMENTARIO VIA API REST - Postman Collection\",\n    \"users\": [\"{{usuarioId}}\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{fluig_url}}/api/public/2.0/workflows/createProcessObservation",
+							"host": [
+								"{{fluig_url}}"
+							],
+							"path": [
+								"api",
+								"public",
+								"2.0",
+								"workflows",
+								"createProcessObservation"
+							]
+						},
+						"description": "Adiciona uma observação/comentário no histórico de um processo do workflow do Fluig.\n\n**Parâmetros padrão:**\n- **processoId**: 3712163\n- **usuarioId**: integrador.fluig\n- **companyId**: 1\n- **comentario**: TESTE COMENTARIO VIA API REST\n\n**Configuração:**\nOs valores padrão são definidos nas variáveis de ambiente e podem ser alterados conforme necessário."
+					},
+					"response": []
+				},
+				{
+					"name": "Dataset - DS_LANCAR_HISTORICO_WF",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has content\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.content).to.be.an('array');",
+									"    pm.expect(jsonData.content.length).to.be.above(0);",
+									"});",
+									"",
+									"pm.test(\"Dataset returned SUCESSO\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.content[0].status).to.include('SUCESSO');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{fluig_url}}/api/public/ecm/dataset/search?datasetId=DS_LANCAR_HISTORICO_WF&filterFields=processoId,{{processoId}};usuarioId,{{usuarioId}};comentario,TESTE VIA DATASET POSTMAN",
+							"host": [
+								"{{fluig_url}}"
+							],
+							"path": [
+								"api",
+								"public",
+								"ecm",
+								"dataset",
+								"search"
+							],
+							"query": [
+								{
+									"key": "datasetId",
+									"value": "DS_LANCAR_HISTORICO_WF"
+								},
+								{
+									"key": "filterFields",
+									"value": "processoId,{{processoId}};usuarioId,{{usuarioId}};comentario,TESTE VIA DATASET POSTMAN"
+								}
+							]
+						},
+						"description": "Chama o dataset DS_LANCAR_HISTORICO_WF que internamente usa a API createProcessObservation.\n\n**Constraints:**\n- processoId: {{processoId}}\n- usuarioId: {{usuarioId}}\n- comentario: TESTE VIA DATASET POSTMAN"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "fluig_url",
+			"value": "https://oncoclinicas.fluig.cloudtotvs.com.br",
+			"type": "string"
+		},
+		{
+			"key": "processoId",
+			"value": "3712163",
+			"type": "string"
+		},
+		{
+			"key": "usuarioId",
+			"value": "integrador.fluig",
+			"type": "string"
+		},
+		{
+			"key": "companyId",
+			"value": "1",
+			"type": "string"
+		}
+	]
+}

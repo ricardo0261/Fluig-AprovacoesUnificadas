@@ -25,6 +25,7 @@ var AprovacaoContext = {
 	aprovadores: 0,
 	area: '',
 	nomeFornecedor : '',
+	cnpjFornecedor: '',
 	
 	// Dados de processamento
 	usuarios: [],
@@ -85,6 +86,7 @@ function servicetask13(attempt, message) {
 	AprovacaoContext.aprovadores       = 0;
 	AprovacaoContext.usabilidade       = ''; // usada somente para PA - pegar usabilidade da filial
 	AprovacaoContext.nomeFornecedor    = String(hAPI.getCardValue("nomeFornecedor"		) || '').replace('&nbsp;','');
+	AprovacaoContext.cnpjFornecedor    = String(hAPI.getCardValue("cnpjFornecedor"		) || '').replace('&nbsp;','').replace(/[^\d]+/g,''); // somente numeros
 
 	// SEGURANCA FILIAL
 	if(AprovacaoContext.codFilial=='' || isNaN(parseInt(AprovacaoContext.codFilial))){
@@ -280,11 +282,13 @@ function alcadasPadrao(){
 		AprovacaoContext.lerCCUSTOS = false; // NAO LER CENTRO DE CUSTOS
 		AprovacaoContext.lerFILIAIS = false; // NAO LER FILIAIS
 		AprovacaoContext.lerPA	    = false; // NAO LER PAGAMENTO ANTECIPADO
+		AprovacaoContext.lerPA_VRVA = false; // NAO LER PAGAMENTO ANTECIPADO VR/VA
 	} else {
 		AprovacaoContext.verCV      = false;
 		AprovacaoContext.lerCV      = false;
 		AprovacaoContext.lerCCUSTOS = true;
-		AprovacaoContext.lerPA      = false;
+		AprovacaoContext.lerPA      = false; // NAO LER PAGAMENTO ANTECIPADO
+		AprovacaoContext.lerPA_VRVA = false; // NAO LER PAGAMENTO ANTECIPADO VR/VA
 	}
 
 	// VERIFICA SE APROVACAO FOR OPERACACAO PA - PAGAMENTO ANTECIPADO
@@ -296,27 +300,34 @@ function alcadasPadrao(){
 		AprovacaoContext.lerFILIAIS = false;
 		AprovacaoContext.lerCCUSTOS = false;
 		AprovacaoContext.lerPA      = true;
-
-		// SE FILIAL FOR INFORMADA CARREGAR USABILIDADE
-		if(AprovacaoContext.codFilial != null && AprovacaoContext.codFilial != ''){
-			log.info("### AprovacaoUnificada.serviceTask13 - codFilial: "+AprovacaoContext.codFilial);
-			var params = new Array();
-				params.push( DatasetFactory.createConstraint("CODIGO",AprovacaoContext.codFilial,AprovacaoContext.codFilial,ConstraintType.MUST) );
-			var dsFiliais = buscarDataset("ds_Filiais", params);
-			if(dsFiliais.rowsCount > 0){
-				AprovacaoContext.usabilidade = dsFiliais.getValue(0, "USABILIDADE") || '';
-				if(AprovacaoContext.usabilidade=='')
-					throw 'ou FALHA no Cadastro de Filiais porque o campo USABILIDADE não foi informado. Favor abrir chamado no ISM.';
-				else
-					log.info("### AprovacaoUnificada.serviceTask13 - usabilidade: "+AprovacaoContext.usabilidade);
-			} else {
-				throw "ou FALHA em buscar Filial: "+AprovacaoContext.codFilial+". Favor abrir chamado no ISM.";
+		AprovacaoContext.lerPA_VRVA = false; // NAO LER PAGAMENTO ANTECIPADO VR/VA
+		if( isPA_VRVA()){
+			log.info("### AprovacaoUnificada.serviceTask13 - operacao PA_VRVA: "+AprovacaoContext.operacao);
+			AprovacaoContext.lerPA      = false;
+			AprovacaoContext.lerPA_VRVA = true;
+		} else {
+			// SE FILIAL FOR INFORMADA CARREGAR USABILIDADE execeto se for PA_VRVA
+			if(AprovacaoContext.codFilial != null && AprovacaoContext.codFilial != ''){
+				log.info("### AprovacaoUnificada.serviceTask13 - codFilial: "+AprovacaoContext.codFilial);
+				var params = new Array();
+					params.push( DatasetFactory.createConstraint("CODIGO",AprovacaoContext.codFilial,AprovacaoContext.codFilial,ConstraintType.MUST) );
+				var dsFiliais = buscarDataset("ds_Filiais", params);
+				if(dsFiliais.rowsCount > 0){
+					AprovacaoContext.usabilidade = dsFiliais.getValue(0, "USABILIDADE") || '';
+					if(AprovacaoContext.usabilidade=='')
+						throw 'ou FALHA no Cadastro de Filiais porque o campo USABILIDADE não foi informado. Favor abrir chamado no ISM.';
+					else
+						log.info("### AprovacaoUnificada.serviceTask13 - usabilidade: "+AprovacaoContext.usabilidade);
+				} else {
+					throw "ou FALHA em buscar Filial: "+AprovacaoContext.codFilial+". Favor abrir chamado no ISM.";
+				}
 			}
 		}
+
 	}
 
 	// SE APROVACAO FOR PAGAMENTO ANTECIPADO VR/VA - TODOS OS APROVADORES SAO NIVEL 1 E FILTRAR SOMENTE PELO NIVEL PA_VRVA
-	if(AprovacaoContext.operacao=='Pagamento Antecipado - VR/VA' || AprovacaoContext.operacao=='PA_VRVA'){
+	if( isPA_VRVA() ){
 		log.info("### AprovacaoUnificada.serviceTask13 - operacao PA_VRVA: "+AprovacaoContext.operacao);
 		AprovacaoContext.lerCV      = false;
 		AprovacaoContext.lerFILIAIS = false;
@@ -328,10 +339,11 @@ function alcadasPadrao(){
 	// LEITURA CONFORME ALCADAS DE APROVACAO UNIFICADAS x GRUPOS DE APROVACAO (CENTRO DE CUSTO E FILIAL) 
 	for (var iGrupo = 0; iGrupo <=4; iGrupo++) {
 		log.info("### AprovacaoUnificada.serviceTask13 - LEITURA "+iGrupo+" - wf: "+getValue("WKNumProces"));
-		log.dir(AprovacaoContext.lerCV);
-		log.dir(AprovacaoContext.lerCCUSTOS);
-		log.dir(AprovacaoContext.lerFILIAIS);
-		log.dir(AprovacaoContext.lerPA);
+		log.info("### AprovacaoUnificada.serviceTask13 - AprovacaoContext.lerCV: "+AprovacaoContext.lerCV);
+		log.info("### AprovacaoUnificada.serviceTask13 - AprovacaoContext.lerCCUSTOS: "+AprovacaoContext.lerCCUSTOS);
+		log.info("### AprovacaoUnificada.serviceTask13 - AprovacaoContext.lerFILIAIS: "+AprovacaoContext.lerFILIAIS);
+		log.info("### AprovacaoUnificada.serviceTask13 - AprovacaoContext.lerPA: "+AprovacaoContext.lerPA);
+		log.info("### AprovacaoUnificada.serviceTask13 - AprovacaoContext.lerPA_VRVA: "+AprovacaoContext.lerPA_VRVA);
 		log.info("### AprovacaoUnificada.serviceTask13 - LEITURA fim "+iGrupo);
 		
 		var params = new Array();
@@ -679,6 +691,7 @@ function isExcecaoCompliance(qUSER,qFORNECEDOR){
 			break;
 		}
 	}
+	log.info("### AprovacaoUnificada.serviceTask13 - isExcecaoCompliance() - isExcecao: "+isExcecao);
 	return isExcecao;
 }
 
@@ -687,9 +700,27 @@ function isPA_VRVA(){
 	log.info("### AprovacaoUnificada.serviceTask13 - isPA_VRVA()");
 	var isVRVA = false;
 	
+  	log.info("### AprovacaoUnificada.serviceTask13 - isPA_VRVA() - CNPJ: "+AprovacaoContext.cnpjFornecedor);
+	
+	// LISTA DE CNPJS QUE UTILIZAM VR/VA NO PAGAMENTO ANTECIPADO 
+	var listaCNPJ = [ 	
+		{ nome: 'PLUXEE BENEFICIOS DO BRASIL',    cnpj: '69034668000156' },
+		{ nome: 'BENEFICIO FACIL SERVICOS LTDAE', cnpj: '06353068000130' }
+	];
+	
 	// VERIFICAR SE OPERACAO = PA - PAGAMENTO ANTECIPADO
-	if(AprovacaoContext.operacao.toLowerCase()=='pagamento antecipado vr_va'){
-		isVRVA = true;
+	if(	AprovacaoContext.operacao.toLowerCase()=='pagamento antecipado vr_va'   || 
+		AprovacaoContext.operacao.toLowerCase()=='pagamento antecipado'         || 
+		AprovacaoContext.operacao.toLowerCase()=='pagamento antecipado - vr/va' || 
+		AprovacaoContext.operacao.toLowerCase()=='pa_vrva' 						){
+		// VERIFICAR SE CNPJ DO FORNECEDOR ESTA NA LISTA DE VR/VA
+		for(var i = 0; i < listaCNPJ.length; i++){
+			if(listaCNPJ[i].cnpj == AprovacaoContext.cnpjFornecedor){
+				log.info("### AprovacaoUnificada.serviceTask13 - isPA_VRVA() - CNPJ encontrado na lista de VR/VA: "+listaCNPJ[i].nome);
+				isVRVA = true;
+				break;
+			}
+		}
 	}
 	
 	log.info("### AprovacaoUnificada.serviceTask13 - isPA_VRVA() - isVRVA: "+isVRVA);

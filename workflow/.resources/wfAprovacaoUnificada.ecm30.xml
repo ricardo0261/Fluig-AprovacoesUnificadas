@@ -29,7 +29,7 @@
     <processDefinitionVersionPK>
       <companyId>1</companyId>
       <processId>Aprovação Conforme Alçadas</processId>
-      <version>119</version>
+      <version>136</version>
     </processDefinitionVersionPK>
     <versionDescription></versionDescription>
     <formId>7640845</formId>
@@ -551,7 +551,7 @@
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
         <expressionOrder>1</expressionOrder>
-        <version>119</version>
+        <version>136</version>
         <sequence>7</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;seAprovado&quot;)==&quot;Reprovado&quot;&#xd;
@@ -564,7 +564,7 @@
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
         <expressionOrder>2</expressionOrder>
-        <version>119</version>
+        <version>136</version>
         <sequence>7</sequence>
       </conditionProcessStatePK>
       <condition> verificaUltimoAprovador() == &quot;sim&quot; &amp;&amp; &#xd;
@@ -577,7 +577,7 @@ hAPI.getCardValue(&quot;seAprovado&quot;)==&quot;Aprovado&quot;</condition>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
         <expressionOrder>3</expressionOrder>
-        <version>119</version>
+        <version>136</version>
         <sequence>7</sequence>
       </conditionProcessStatePK>
       <condition>verificaUltimoAprovador() == &quot;nao&quot; </condition>
@@ -589,7 +589,7 @@ hAPI.getCardValue(&quot;seAprovado&quot;)==&quot;Aprovado&quot;</condition>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
         <expressionOrder>4</expressionOrder>
-        <version>119</version>
+        <version>136</version>
         <sequence>7</sequence>
       </conditionProcessStatePK>
       <condition>true || false</condition>
@@ -601,7 +601,7 @@ hAPI.getCardValue(&quot;seAprovado&quot;)==&quot;Aprovado&quot;</condition>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
         <expressionOrder>1</expressionOrder>
-        <version>119</version>
+        <version>136</version>
         <sequence>20</sequence>
       </conditionProcessStatePK>
       <condition>verificaSeCargaAprovadores()==true</condition>
@@ -613,7 +613,7 @@ hAPI.getCardValue(&quot;seAprovado&quot;)==&quot;Aprovado&quot;</condition>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
         <expressionOrder>2</expressionOrder>
-        <version>119</version>
+        <version>136</version>
         <sequence>20</sequence>
       </conditionProcessStatePK>
       <condition>true || false</condition>
@@ -982,6 +982,7 @@ var AprovacaoContext = {
 	aprovadores: 0,
 	area: &apos;&apos;,
 	nomeFornecedor : &apos;&apos;,
+	cnpjFornecedor: &apos;&apos;,
 	
 	// Dados de processamento
 	usuarios: [],
@@ -1042,6 +1043,7 @@ function servicetask13(attempt, message) {
 	AprovacaoContext.aprovadores       = 0;
 	AprovacaoContext.usabilidade       = &apos;&apos;; // usada somente para PA - pegar usabilidade da filial
 	AprovacaoContext.nomeFornecedor    = String(hAPI.getCardValue(&quot;nomeFornecedor&quot;		) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;);
+	AprovacaoContext.cnpjFornecedor    = String(hAPI.getCardValue(&quot;cnpjFornecedor&quot;		) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;).replace(/[^\d]+/g,&apos;&apos;); // somente numeros
 
 	// SEGURANCA FILIAL
 	if(AprovacaoContext.codFilial==&apos;&apos; || isNaN(parseInt(AprovacaoContext.codFilial))){
@@ -1237,11 +1239,13 @@ function alcadasPadrao(){
 		AprovacaoContext.lerCCUSTOS = false; // NAO LER CENTRO DE CUSTOS
 		AprovacaoContext.lerFILIAIS = false; // NAO LER FILIAIS
 		AprovacaoContext.lerPA	    = false; // NAO LER PAGAMENTO ANTECIPADO
+		AprovacaoContext.lerPA_VRVA = false; // NAO LER PAGAMENTO ANTECIPADO VR/VA
 	} else {
 		AprovacaoContext.verCV      = false;
 		AprovacaoContext.lerCV      = false;
 		AprovacaoContext.lerCCUSTOS = true;
-		AprovacaoContext.lerPA      = false;
+		AprovacaoContext.lerPA      = false; // NAO LER PAGAMENTO ANTECIPADO
+		AprovacaoContext.lerPA_VRVA = false; // NAO LER PAGAMENTO ANTECIPADO VR/VA
 	}
 
 	// VERIFICA SE APROVACAO FOR OPERACACAO PA - PAGAMENTO ANTECIPADO
@@ -1253,27 +1257,34 @@ function alcadasPadrao(){
 		AprovacaoContext.lerFILIAIS = false;
 		AprovacaoContext.lerCCUSTOS = false;
 		AprovacaoContext.lerPA      = true;
-
-		// SE FILIAL FOR INFORMADA CARREGAR USABILIDADE
-		if(AprovacaoContext.codFilial != null &amp;&amp; AprovacaoContext.codFilial != &apos;&apos;){
-			log.info(&quot;### AprovacaoUnificada.serviceTask13 - codFilial: &quot;+AprovacaoContext.codFilial);
-			var params = new Array();
-				params.push( DatasetFactory.createConstraint(&quot;CODIGO&quot;,AprovacaoContext.codFilial,AprovacaoContext.codFilial,ConstraintType.MUST) );
-			var dsFiliais = buscarDataset(&quot;ds_Filiais&quot;, params);
-			if(dsFiliais.rowsCount &gt; 0){
-				AprovacaoContext.usabilidade = dsFiliais.getValue(0, &quot;USABILIDADE&quot;) || &apos;&apos;;
-				if(AprovacaoContext.usabilidade==&apos;&apos;)
-					throw &apos;ou FALHA no Cadastro de Filiais porque o campo USABILIDADE não foi informado. Favor abrir chamado no ISM.&apos;;
-				else
-					log.info(&quot;### AprovacaoUnificada.serviceTask13 - usabilidade: &quot;+AprovacaoContext.usabilidade);
-			} else {
-				throw &quot;ou FALHA em buscar Filial: &quot;+AprovacaoContext.codFilial+&quot;. Favor abrir chamado no ISM.&quot;;
+		AprovacaoContext.lerPA_VRVA = false; // NAO LER PAGAMENTO ANTECIPADO VR/VA
+		if( isPA_VRVA()){
+			log.info(&quot;### AprovacaoUnificada.serviceTask13 - operacao PA_VRVA: &quot;+AprovacaoContext.operacao);
+			AprovacaoContext.lerPA      = false;
+			AprovacaoContext.lerPA_VRVA = true;
+		} else {
+			// SE FILIAL FOR INFORMADA CARREGAR USABILIDADE execeto se for PA_VRVA
+			if(AprovacaoContext.codFilial != null &amp;&amp; AprovacaoContext.codFilial != &apos;&apos;){
+				log.info(&quot;### AprovacaoUnificada.serviceTask13 - codFilial: &quot;+AprovacaoContext.codFilial);
+				var params = new Array();
+					params.push( DatasetFactory.createConstraint(&quot;CODIGO&quot;,AprovacaoContext.codFilial,AprovacaoContext.codFilial,ConstraintType.MUST) );
+				var dsFiliais = buscarDataset(&quot;ds_Filiais&quot;, params);
+				if(dsFiliais.rowsCount &gt; 0){
+					AprovacaoContext.usabilidade = dsFiliais.getValue(0, &quot;USABILIDADE&quot;) || &apos;&apos;;
+					if(AprovacaoContext.usabilidade==&apos;&apos;)
+						throw &apos;ou FALHA no Cadastro de Filiais porque o campo USABILIDADE não foi informado. Favor abrir chamado no ISM.&apos;;
+					else
+						log.info(&quot;### AprovacaoUnificada.serviceTask13 - usabilidade: &quot;+AprovacaoContext.usabilidade);
+				} else {
+					throw &quot;ou FALHA em buscar Filial: &quot;+AprovacaoContext.codFilial+&quot;. Favor abrir chamado no ISM.&quot;;
+				}
 			}
 		}
+
 	}
 
 	// SE APROVACAO FOR PAGAMENTO ANTECIPADO VR/VA - TODOS OS APROVADORES SAO NIVEL 1 E FILTRAR SOMENTE PELO NIVEL PA_VRVA
-	if(AprovacaoContext.operacao==&apos;Pagamento Antecipado - VR/VA&apos; || AprovacaoContext.operacao==&apos;PA_VRVA&apos;){
+	if( isPA_VRVA() ){
 		log.info(&quot;### AprovacaoUnificada.serviceTask13 - operacao PA_VRVA: &quot;+AprovacaoContext.operacao);
 		AprovacaoContext.lerCV      = false;
 		AprovacaoContext.lerFILIAIS = false;
@@ -1285,10 +1296,11 @@ function alcadasPadrao(){
 	// LEITURA CONFORME ALCADAS DE APROVACAO UNIFICADAS x GRUPOS DE APROVACAO (CENTRO DE CUSTO E FILIAL) 
 	for (var iGrupo = 0; iGrupo &lt;=4; iGrupo++) {
 		log.info(&quot;### AprovacaoUnificada.serviceTask13 - LEITURA &quot;+iGrupo+&quot; - wf: &quot;+getValue(&quot;WKNumProces&quot;));
-		log.dir(AprovacaoContext.lerCV);
-		log.dir(AprovacaoContext.lerCCUSTOS);
-		log.dir(AprovacaoContext.lerFILIAIS);
-		log.dir(AprovacaoContext.lerPA);
+		log.info(&quot;### AprovacaoUnificada.serviceTask13 - AprovacaoContext.lerCV: &quot;+AprovacaoContext.lerCV);
+		log.info(&quot;### AprovacaoUnificada.serviceTask13 - AprovacaoContext.lerCCUSTOS: &quot;+AprovacaoContext.lerCCUSTOS);
+		log.info(&quot;### AprovacaoUnificada.serviceTask13 - AprovacaoContext.lerFILIAIS: &quot;+AprovacaoContext.lerFILIAIS);
+		log.info(&quot;### AprovacaoUnificada.serviceTask13 - AprovacaoContext.lerPA: &quot;+AprovacaoContext.lerPA);
+		log.info(&quot;### AprovacaoUnificada.serviceTask13 - AprovacaoContext.lerPA_VRVA: &quot;+AprovacaoContext.lerPA_VRVA);
 		log.info(&quot;### AprovacaoUnificada.serviceTask13 - LEITURA fim &quot;+iGrupo);
 		
 		var params = new Array();
@@ -1636,6 +1648,7 @@ function isExcecaoCompliance(qUSER,qFORNECEDOR){
 			break;
 		}
 	}
+	log.info(&quot;### AprovacaoUnificada.serviceTask13 - isExcecaoCompliance() - isExcecao: &quot;+isExcecao);
 	return isExcecao;
 }
 
@@ -1644,9 +1657,27 @@ function isPA_VRVA(){
 	log.info(&quot;### AprovacaoUnificada.serviceTask13 - isPA_VRVA()&quot;);
 	var isVRVA = false;
 	
+  	log.info(&quot;### AprovacaoUnificada.serviceTask13 - isPA_VRVA() - CNPJ: &quot;+AprovacaoContext.cnpjFornecedor);
+	
+	// LISTA DE CNPJS QUE UTILIZAM VR/VA NO PAGAMENTO ANTECIPADO 
+	var listaCNPJ = [ 	
+		{ nome: &apos;PLUXEE BENEFICIOS DO BRASIL&apos;,    cnpj: &apos;69034668000156&apos; },
+		{ nome: &apos;BENEFICIO FACIL SERVICOS LTDAE&apos;, cnpj: &apos;06353068000130&apos; }
+	];
+	
 	// VERIFICAR SE OPERACAO = PA - PAGAMENTO ANTECIPADO
-	if(AprovacaoContext.operacao.toLowerCase()==&apos;pagamento antecipado vr_va&apos;){
-		isVRVA = true;
+	if(	AprovacaoContext.operacao.toLowerCase()==&apos;pagamento antecipado vr_va&apos;   || 
+		AprovacaoContext.operacao.toLowerCase()==&apos;pagamento antecipado&apos;         || 
+		AprovacaoContext.operacao.toLowerCase()==&apos;pagamento antecipado - vr/va&apos; || 
+		AprovacaoContext.operacao.toLowerCase()==&apos;pa_vrva&apos; 						){
+		// VERIFICAR SE CNPJ DO FORNECEDOR ESTA NA LISTA DE VR/VA
+		for(var i = 0; i &lt; listaCNPJ.length; i++){
+			if(listaCNPJ[i].cnpj == AprovacaoContext.cnpjFornecedor){
+				log.info(&quot;### AprovacaoUnificada.serviceTask13 - isPA_VRVA() - CNPJ encontrado na lista de VR/VA: &quot;+listaCNPJ[i].nome);
+				isVRVA = true;
+				break;
+			}
+		}
 	}
 	
 	log.info(&quot;### AprovacaoUnificada.serviceTask13 - isPA_VRVA() - isVRVA: &quot;+isVRVA);
@@ -1956,28 +1987,55 @@ function buscarDataset(nome, constraints) {
 	var usuario    = getValue(&apos;WKUser&apos;); //matricula do usuário corrente
 
 	// Verifica se o usuário atual é o responsável pela aprovação
-	log.info(&quot;### AprovacaoUnificada.servicetask36 - numChamado: &quot;+numChamado);
-	log.info(&quot;### AprovacaoUnificada.servicetask36 - usuario: &quot;+usuario);
+	log.info(&quot;### AprovacaoUnificada.servicetask35 - numChamado: &quot;+numChamado);
+	log.info(&quot;### AprovacaoUnificada.servicetask35 - usuario: &quot;+usuario);
 
 	var params = new Array();
 		params.push( DatasetFactory.createConstraint(&quot;numChamado&quot;,numChamado,&apos;&apos;,ConstraintType.MUST) );
 	var dsExecutados = DatasetFactory.getDataset(&quot;DS_ALCADAS_EXECUTADAS&quot;,null,params,null);
-	log.info(&quot;### AprovacaoUnificada.servicetask36 - DS_ALCADAS_EXECUTADAS&quot;);
+	log.info(&quot;### AprovacaoUnificada.servicetask35 - DS_ALCADAS_EXECUTADAS&quot;);
 	log.dir(dsExecutados);
 	
 	var achei=&apos;nao&apos;;
 	if(dsExecutados.rowsCount &gt; 0)
 		for (var i1 = 0; i1 &lt; dsExecutados.rowsCount; i1++) {
 			var status = &apos;&apos;+dsExecutados.getValue(i1, &quot;apvStatus&quot;);
-			if(status ==&apos;nao_confirmado&apos;){
-				achei=&apos;sim&apos;;
+			// gravar historico e motido da reprovação no workflow horiginal se o ultimo registro for Reprovado
+			if(status ==&apos;Reprovado&apos;){
+				var numChamadoOrigem = dsExecutados.getValue(i1,&quot;numChamadoOrigem&quot;);
+				var apvLogin	 = &apos;&apos;+dsExecutados.getValue(i1,&quot;apvLogin&quot;);
+
+				// BUSCAR NOME DO APROVADOR NO DATASET DE USUARIOS COLEEAGUE
+				var constUser = new Array();
+					constUser.push( DatasetFactory.createConstraint(&quot;colleaguePK.colleagueId&quot;,apvLogin,apvLogin,ConstraintType.MUST) );
+				var dsUser = DatasetFactory.getDataset(&quot;colleague&quot;,null,constUser,null);
+				var nomeAprovador = dsUser.getValue(0,&quot;colleagueName&quot;);
+				var comments = &apos;Atenção: &apos;+nomeAprovador+&quot; Reprovou esta solicitação - Motivo: &quot;+dsExecutados.getValue(i1,&quot;apvObs&quot;);
+
+				var users = new java.util.ArrayList();
+					users.add(usuario); // matrícula do usuário
+
+				// ENVIAR HISTORICO PARA O WORKFLOW ORIGEM ATRAVES DATASET DS_LANCAR_HISTORICO_WF2
+				var params = new Array();
+					params.push( DatasetFactory.createConstraint(&quot;PROCESS_INSTANCE_ID&quot;	,numChamadoOrigem	,&apos;&apos;,ConstraintType.MUST) );
+					params.push( DatasetFactory.createConstraint(&quot;USER_ID&quot;				,usuario			,&apos;&apos;,ConstraintType.MUST) );
+					params.push( DatasetFactory.createConstraint(&quot;COMMENTS&quot;				,comments			,&apos;&apos;,ConstraintType.MUST) );
+					params.push( DatasetFactory.createConstraint(&quot;THREAD_SEQUENCE&quot;		,&quot;0&quot;				,&apos;&apos;,ConstraintType.MUST) );
+				var dsLancarHistorico = DatasetFactory.getDataset(&quot;DS_LANCAR_HISTORICO_WF2&quot;,null,params,null);
+				log.info(&quot;### AprovacaoUnificada.servicetask35 - DS_LANCAR_HISTORICO_WF2&quot;);
+				log.dir(dsLancarHistorico);
 				break;
+			} else {
+				if(status ==&apos;nao_confirmado&apos;){
+					achei=&apos;sim&apos;;
+					break;
+				}
 			}
 		}
 	else 
 		achei=&apos;vazio&apos;;
 	
-	log.info(&quot;### AprovacaoUnificada.servicetask36 - achei: &quot;+achei);
+	log.info(&quot;### AprovacaoUnificada.servicetask35 - achei: &quot;+achei);
 	return achei;
 }
 </eventDescription>
@@ -2144,7 +2202,7 @@ function verificaSeCargaAprovadores(){&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
-        <version>119</version>
+        <version>136</version>
         <linkSequence>9</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2155,7 +2213,7 @@ function verificaSeCargaAprovadores(){&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
-        <version>119</version>
+        <version>136</version>
         <linkSequence>9</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2166,7 +2224,7 @@ function verificaSeCargaAprovadores(){&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
-        <version>119</version>
+        <version>136</version>
         <linkSequence>23</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2177,7 +2235,7 @@ function verificaSeCargaAprovadores(){&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
-        <version>119</version>
+        <version>136</version>
         <linkSequence>29</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2188,7 +2246,7 @@ function verificaSeCargaAprovadores(){&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
-        <version>119</version>
+        <version>136</version>
         <linkSequence>30</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2199,7 +2257,7 @@ function verificaSeCargaAprovadores(){&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
-        <version>119</version>
+        <version>136</version>
         <linkSequence>31</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2210,7 +2268,7 @@ function verificaSeCargaAprovadores(){&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
-        <version>119</version>
+        <version>136</version>
         <linkSequence>34</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2221,7 +2279,7 @@ function verificaSeCargaAprovadores(){&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
-        <version>119</version>
+        <version>136</version>
         <linkSequence>34</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2232,7 +2290,7 @@ function verificaSeCargaAprovadores(){&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
-        <version>119</version>
+        <version>136</version>
         <linkSequence>41</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2243,7 +2301,7 @@ function verificaSeCargaAprovadores(){&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
-        <version>119</version>
+        <version>136</version>
         <linkSequence>41</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2254,7 +2312,7 @@ function verificaSeCargaAprovadores(){&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
-        <version>119</version>
+        <version>136</version>
         <linkSequence>50</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2265,7 +2323,7 @@ function verificaSeCargaAprovadores(){&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
-        <version>119</version>
+        <version>136</version>
         <linkSequence>50</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>

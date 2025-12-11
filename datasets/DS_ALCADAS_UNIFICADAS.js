@@ -11,7 +11,7 @@ function createDataset(fields, constraints, sortFields) {
 	    xNCCUSTO  ="",
 	    xCLASSE   ="",
 	    xPA       ="",
-		xPA_VRVA  ="PA_VRVA",
+		xPA_VRVA  ="",
 		xRA       ="",
 		area	  ="";
 	
